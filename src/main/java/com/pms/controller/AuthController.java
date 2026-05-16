@@ -4,14 +4,18 @@ package com.pms.controller;
 import com.pms.config.JwtProvider;
 import com.pms.model.User;
 import com.pms.repository.UserRepository;
+import com.pms.request.LoginRequest;
 import com.pms.response.AuthResponse;
 import com.pms.service.CustomeUserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +37,7 @@ public class AuthController {
 
 
     @PostMapping("/signup")
-    public ResponseEntity<User> createUserHandler(@RequestBody User user) throws Exception {
+    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws Exception {
 
         User isUserExist = userRepository.findByEmail(user.getEmail());
 
@@ -57,10 +61,43 @@ public class AuthController {
         res.setMessage("signup success");
         res.setJwt(jwt);
 
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(res, HttpStatus.CREATED);
 
     }
 
+    @PostMapping("/signing")
+    public ResponseEntity<AuthResponse> signing(@RequestBody LoginRequest loginRequest) throws Exception {
+
+        String username = loginRequest.getEmail();
+        String password = loginRequest.getPassword();
+
+        Authentication authentication = authenticate(username, password);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = JwtProvider.generateToken(authentication);
+
+        AuthResponse res = new AuthResponse();
+        res.setMessage("signing success");
+        res.setJwt(jwt);
+
+        return new ResponseEntity<>(res, HttpStatus.CREATED);
+
+
+    }
+
+    private Authentication authenticate(String username, String password) {
+
+        UserDetails userDetails = customeUserDetails.loadUserByUsername(username);
+        if(userDetails==null){
+            throw new BadCredentialsException("Invalid username");
+        }
+        if(!passwordEncoder.matches(password, userDetails.getPassword())){
+            throw new BadCredentialsException("Invalid password");
+
+        }
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+    }
 
 
 }
