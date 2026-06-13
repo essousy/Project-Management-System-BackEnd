@@ -39,7 +39,6 @@ public class ProjectController {
             @PathVariable Long projectId,
             @RequestHeader("Authorization")String jwt
     ) throws Exception {
-        User user = userService.findUserProfileByJwt(jwt);
         Project projects = projectService.getProjectById(projectId);
         return new ResponseEntity<>(projects, HttpStatus.OK);
     }
@@ -55,7 +54,7 @@ public class ProjectController {
     }
 
     @PatchMapping("/{projectId}")
-    public ResponseEntity<Project> udpateProject(
+    public ResponseEntity<Project> updateProject(
             @PathVariable Long projectId,
             @RequestHeader("Authorization")String jwt,
             @RequestBody Project project
@@ -90,7 +89,6 @@ public class ProjectController {
             @PathVariable Long projectId,
             @RequestHeader("Authorization")String jwt
     ) throws Exception {
-        User user = userService.findUserProfileByJwt(jwt);
         Chat chat = projectService.getChatByProjectId(projectId);
         return new ResponseEntity<>(chat, HttpStatus.OK);
     }
