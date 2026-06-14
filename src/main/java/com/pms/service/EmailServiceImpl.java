@@ -29,7 +29,7 @@ public class EmailServiceImpl implements EmailService{
 
         try{
             javaMailSender.send(mimeMessage);
-        }catch(MailException e){
+        }catch(MailSendException e){
             throw new MailSendException("Faild to send email");
         }
     }
