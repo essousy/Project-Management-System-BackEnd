@@ -6,10 +6,12 @@ import com.pms.model.User;
 import com.pms.repository.IssueRepository;
 import com.pms.request.IssueRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class IssueServiceImpl implements IssueService{
 
     @Autowired
@@ -46,7 +48,6 @@ public class IssueServiceImpl implements IssueService{
         issue.setProjectID(issueRequest.getProjectID());
         issue.setPriority(issueRequest.getPriority());
         issue.setDueDate(issueRequest.getDueDate());
-
         issue.setProject(project);
 
         return issueRepository.save(issue);
